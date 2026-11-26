@@ -4,7 +4,7 @@ DROP DATABASE IF EXISTS sailors;
 CREATE DATABASE sailors;
 USE sailors;
 
--- 1. Create Sailors table
+-- Create Sailors table
 CREATE TABLE IF NOT EXISTS Sailors (
     sid INT PRIMARY KEY,
     sname VARCHAR(35) NOT NULL,
@@ -12,14 +12,14 @@ CREATE TABLE IF NOT EXISTS Sailors (
     age INT NOT NULL
 );
 
--- 2. Create Boat table
+-- Create Boat table
 CREATE TABLE IF NOT EXISTS Boat (
     bid INT PRIMARY KEY,
     bname VARCHAR(35) NOT NULL,
     color VARCHAR(25) NOT NULL
 );
 
--- 3. Create Reserves table with Foreign Keys
+-- Create Reserves table with Foreign Keys
 CREATE TABLE IF NOT EXISTS reserves (
     sid INT NOT NULL,
     bid INT NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS reserves (
     FOREIGN KEY (bid) REFERENCES Boat(bid) ON DELETE CASCADE
 );
 
--- 4. Insert data into Sailors
+-- Insert data into Sailors
 INSERT INTO Sailors VALUES
 (1, 'Albert', 5.0, 40),
 (2, 'Nakul', 5.0, 49),
@@ -36,14 +36,14 @@ INSERT INTO Sailors VALUES
 (4, 'Astorm Gowda', 2, 68),
 (5, 'Armstormin', 7, 19);
 
--- 5. Insert data into Boat
+-- Insert data into Boat
 INSERT INTO Boat VALUES
 (1, 'Boat_1', 'Green'),
 (2, 'Boat_2', 'Red'),
 (103, 'Boat_3', 'Blue'),
 (104, 'Boat_4', 'Pink');
 
--- 6. Insert data into reserves
+-- Insert data into reserves
 INSERT INTO reserves VALUES
 (1, 103, '2023-01-01'),
 (1, 2, '2023-02-01'),
@@ -53,20 +53,26 @@ INSERT INTO reserves VALUES
 (1, 1, '2023-03-06'),
 (1, 104, '2023-12-12');
 
--- 7. Display all tables
+-- Display all the tables
 SELECT * FROM Sailors;
 SELECT * FROM Boat;
 SELECT * FROM reserves;
 
--- 8. Find the colours of boats reserved by Albert
+
+-- QUESTION 1:
+-- Find the colours of the boats reserved by Albert.
+
 SELECT b.color
 FROM Sailors s, Boat b, reserves r
 WHERE s.sid = r.sid
 AND b.bid = r.bid
 AND s.sname = 'Albert';
 
--- 9. Find all sailor sids who have rating >= 8
--- OR have reserved boat 103
+
+-- QUESTION 2:
+-- Find all sailor sids who have rating >= 8
+-- OR have reserved boat 103.
+
 SELECT sid
 FROM Sailors
 WHERE rating >= 8
@@ -77,9 +83,11 @@ SELECT sid
 FROM reserves
 WHERE bid = 103;
 
--- 10. Find names of sailors who have NOT reserved
--- a boat whose name contains the string 'storm'
--- Order names in ascending order
+
+-- QUESTION 3:
+-- Find the names of sailors who have NOT reserved
+-- a boat whose name contains the string 'storm'.
+-- Order the names in ascending order.
 
 SELECT s.sname
 FROM Sailors s
@@ -92,7 +100,10 @@ WHERE NOT EXISTS (
 )
 ORDER BY s.sname ASC;
 
--- 11. Find the names of sailors who have reserved ALL boats
+
+-- QUESTION 4:
+-- Find the names of sailors who have reserved ALL boats.
+
 SELECT s.sname
 FROM Sailors s
 WHERE NOT EXISTS (
@@ -106,13 +117,18 @@ WHERE NOT EXISTS (
     )
 );
 
--- 12. Find the name and age of the oldest sailor
+
+-- QUESTION 5:
+-- Find the name and age of the oldest sailor.
+
 SELECT sname, age
 FROM Sailors
 WHERE age = (SELECT MAX(age) FROM Sailors);
 
--- 13. For each boat reserved by at least 2 sailors aged >= 40,
--- find the bid and average age of such sailors
+
+-- QUESTION 6:
+-- For each boat reserved by at least 2 sailors aged >= 40,
+-- find the bid and average age of such sailors.
 
 SELECT b.bid, AVG(s.age) AS average_age
 FROM Sailors s, Boat b, reserves r
@@ -122,8 +138,10 @@ AND s.age >= 40
 GROUP BY b.bid
 HAVING COUNT(DISTINCT r.sid) >= 2;
 
--- 14. Create a view showing boat names and colours
--- for boats reserved by sailors with rating 5
+
+-- QUESTION 7:
+-- Create a view showing boat names and colours
+-- for boats reserved by sailors with rating 5.
 
 CREATE VIEW ReservedBoatsWithRatedSailor AS
 SELECT DISTINCT b.bname, b.color
@@ -132,9 +150,13 @@ WHERE s.sid = r.sid
 AND b.bid = r.bid
 AND s.rating = 5;
 
+-- Display the view
 SELECT * FROM ReservedBoatsWithRatedSailor;
 
--- 15. Trigger to prevent deleting boats that have reservations
+
+-- QUESTION 8:
+-- Create a trigger that prevents boats from being deleted
+-- if they have active reservations.
 
 DROP TRIGGER IF EXISTS CheckAndDelete;
 
@@ -156,5 +178,5 @@ END//
 
 DELIMITER ;
 
--- 16. Test the trigger
+-- Test the trigger
 DELETE FROM Boat WHERE bid = 103;
